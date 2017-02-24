@@ -1,4 +1,5 @@
 import math
+import pprint
 import random
 import time
 
@@ -53,7 +54,7 @@ def compute_polynomial(n, x):
     elif n == 3:
         p = x * (1 + y * (-c1 + y * (c2 + y * (-c3 + y * c4))))
     elif n == 4:
-        p = x * (1 + y * (-0.1666 + y * (0.00833 + y * (-c3 + y * c4))))
+        p = x * (1 + y * (-0.166 + y * (0.00833 + y * (-c3 + y * c4))))
     elif n == 5:
         p = x * (1 + y * (-c1 + y * (c2 + y * (-c3 + y * (c4 - c5 * y)))))
     elif n == 6:
@@ -66,13 +67,21 @@ def ex3():
                    for x in range(10000)]
     count = {i: 0 for i in range(1, 7)}
 
+    best = {}
+    best_each = [0, ] * 6
     for number in number_list:
         results = [compute_polynomial(i, number) for i in range(1, 7)]
-        errors = [abs(res - math.sin(number)) for res in results]
+        errors = [(r, abs(res - math.sin(number)))
+                  for r, res in enumerate(results, 1)]
 
-        best_polynomial = errors.index(min(errors)) + 1
-        count[best_polynomial] += 1
-    print(count)
+        best_three = sorted(errors, key=lambda x: x[1])[:3]
+        best[number] = best_three
+        best_each[best_three[0][0] - 1] += 3
+        best_each[best_three[1][0] - 1] += 2
+        best_each[best_three[2][0] - 1] += 1
+
+    pprint.pprint(best)
+    pprint.pprint(best_each)
 
     number_list = [random.uniform(-math.pi / 2, math.pi / 2)
                    for x in range(100000)]
