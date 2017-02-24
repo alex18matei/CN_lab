@@ -1,8 +1,19 @@
 import math
 import pprint
 import random
+import sys
 import time
 
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+from tkinter import *
+from tkinter.ttk import *
+from tkinter.scrolledtext import *
+from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
+                                               NavigationToolbar2TkAgg)
+from matplotlib.figure import Figure
 
 c1 = 1 / math.factorial(3)
 c2 = 1 / math.factorial(5)
@@ -34,6 +45,8 @@ def ex2(u):
     print('Exercitiul 2')
     print('============')
 
+    for_gui = []
+
     x = 1.0
     y = u
     z = u
@@ -42,6 +55,8 @@ def ex2(u):
               .format(x=x, y=y, z=z))
         print((x + y) + z != x + (y + z))
         print('')
+
+    for_gui.append((x, y, z))
 
     x = math.pow(10, -random.randint(1, 16))
     y = math.pow(10, -random.randint(1, 16))
@@ -56,6 +71,10 @@ def ex2(u):
           .format(x=x, y=y, z=z))
     print((x * y) * z == x * (y * z))
     print('')
+
+    for_gui.append((x, y, z))
+
+    return for_gui
 
 
 def compute_polynomial(n, x):
@@ -105,8 +124,97 @@ def ex3():
         [compute_polynomial(polynomial, num) for num in nums]
         print("P{}: {:.5f} sec".format(polynomial, time.time() - start_time))
 
+    return best_each
+
+
+class GUIApp(Frame):
+    def __init__(self, master=None):
+        super().__init__(master)
+        self.pack()
+        self.create_widgets()
+        self.canvas = None
+        self.ax = None
+
+    def create_widgets(self):
+        self.nb = Notebook(self)
+        self.nb.enable_traversal()
+
+        self.btn_ex1 = Button(self)
+        self.btn_ex1['text'] = 'Exercitiul 1'
+        self.btn_ex1['command'] = self.cmd_btn_ex1
+        self.btn_ex1.pack(side='top')
+
+        self.btn_ex2 = Button(self)
+        self.btn_ex2['text'] = 'Exercitiul 2'
+        self.btn_ex2['command'] = self.cmd_btn_ex2
+        self.btn_ex2.pack(side='top')
+
+        self.btn_ex3 = Button(self)
+        self.btn_ex3['text'] = 'Exercitiul 3'
+        self.btn_ex3['command'] = self.cmd_btn_ex3
+        self.btn_ex3.pack(side='top')
+
+        self.tab1f = Frame(self.nb)
+        self.scrolled_text = ScrolledText(self.tab1f, bg='white', height=10)
+        self.scrolled_text.pack()
+        self.nb.add(self.tab1f, text='Exercitiile 1 si 2')
+
+        self.tab3f = Frame(self.nb)
+        self.nb.add(self.tab3f, text='Exercitiul 3')
+
+        self.nb.pack()
+
+    def cmd_btn_ex1(self):
+        self.u = ex1()
+        self.scrolled_text.insert(END, 'Exercitiul 1\n')
+        self.scrolled_text.insert(END, '============\n')
+        self.scrolled_text.insert(END, 'u = {}\n\n'.format(self.u))
+
+    def cmd_btn_ex2(self):
+        if self.u is None:
+            self.u = ex1()
+
+        ex2_res = ex2(self.u)
+
+        self.scrolled_text.insert(END, 'Exercitiul 2\n')
+        self.scrolled_text.insert(END, '============\n')
+        x, y, z = ex2_res[0]
+        self.scrolled_text.insert(END,
+                                  ('>>> ({x} + {y}) + {z} != {x} + ({y} + {z})\n'
+                                   .format(x=x, y=y, z=z)))
+        self.scrolled_text.insert(END, str((x + y) + z != x + (y + z)))
+        self.scrolled_text.insert(END, '\n\n')
+        x, y, z = ex2_res[1]
+        self.scrolled_text.insert(END,
+                                  ('>>> ({x} * {y}) * {z} == {x} * ({y} * {z})\n'
+                                   .format(x=x, y=y, z=z)))
+        self.scrolled_text.insert(END, str((x * y) * z == x * (y * z)))
+        self.scrolled_text.insert(END, '\n\n')
+
+    def cmd_btn_ex3(self):
+        best_each = ex3()
+        n = np.arange(len(best_each))
+        w = 0.35
+
+        if not self.ax:
+            self.fig, self.ax = plt.subplots()
+        self.ax.clear()
+        rects1 = self.ax.bar(n, best_each, w, color='r')
+        self.ax.set_ylabel('Scor')
+        self.ax.set_xticklabels(range(1, 7))
+
+        if not self.canvas:
+            self.canvas = FigureCanvasTkAgg(self.fig, master=self.tab3f)
+            self.canvas.show()
+            self.canvas.get_tk_widget().pack(side=TOP, fill=BOTH, expand=1)
+
 
 if __name__ == '__main__':
-    u = ex1()
-    ex2(u)
-    ex3()
+    if sys.argv[-1] == 'nogui':
+        u = ex1()
+        ex2(u)
+        ex3()
+    else:
+        root = Tk()
+        app = GUIApp(master=root)
+        app.mainloop()
