@@ -201,7 +201,7 @@ class GUIApp(Frame):
         self.ax.clear()
         rects1 = self.ax.bar(n, best_each, w, color='r')
         self.ax.set_ylabel('Scor')
-        self.ax.set_xticklabels(range(1, 7))
+        self.ax.set_xticklabels(range(0, 7))
 
         if not self.canvas:
             self.canvas = FigureCanvasTkAgg(self.fig, master=self.tab3f)
