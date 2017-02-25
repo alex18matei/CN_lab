@@ -11,8 +11,7 @@ import matplotlib.pyplot as plt
 from tkinter import *
 from tkinter.ttk import *
 from tkinter.scrolledtext import *
-from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
-                                               NavigationToolbar2TkAgg)
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 
 c1 = 1 / math.factorial(3)
@@ -199,9 +198,9 @@ class GUIApp(Frame):
         if not self.ax:
             self.fig, self.ax = plt.subplots()
         self.ax.clear()
-        rects1 = self.ax.bar(n, best_each, w, color='r')
+        rects1 = self.ax.bar(n, best_each, w, color='b')
         self.ax.set_ylabel('Scor')
-        self.ax.set_xticklabels(range(0, 7))
+        self.ax.set_xticklabels(range(7))
 
         if not self.canvas:
             self.canvas = FigureCanvasTkAgg(self.fig, master=self.tab3f)
