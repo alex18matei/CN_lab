@@ -7,7 +7,6 @@ import time
 import numpy as np
 import matplotlib.pyplot as plt
 
-
 from tkinter import *
 from tkinter.ttk import *
 from tkinter.scrolledtext import *
@@ -94,6 +93,23 @@ def compute_polynomial(n, x):
     return p
 
 
+def compute_polynomial_lazy(n, x):
+    p = 1
+    if n == 1:
+        p = x - c1 * x ** 3 + c2 * x ** 5
+    elif n == 2:
+        p = x - c1 * x ** 3 + c2 * x ** 5 - c3 * x ** 7
+    elif n == 3:
+        p = x - c1 * x ** 3 + c2 * x ** 5 - c3 * x ** 7 + c4 * x ** 9
+    elif n == 4:
+        p = x - 0.166 * x ** 3 + 0.00833 * x ** 5 - c3 * x ** 7 + c4 * x ** 9
+    elif n == 5:
+        p = x - c1 * x ** 3 + c2 * x ** 5 - c3 * x ** 7 + c4 * x ** 9 - c5 * x ** 11
+    elif n == 6:
+        p = x - c1 * x ** 3 + c2 * x ** 5 - c3 * x ** 7 + c4 * x ** 9 - c5 * x ** 11 + c6 * x ** 13
+    return p
+
+
 def ex3():
     print('Exercitiul 3')
     print('============')
@@ -117,10 +133,18 @@ def ex3():
     print('Cele mai bune polinoame: {}'.format(best_each))
     print('')
 
+    print("Varianta simplificata")
     nums = [random.uniform(-math.pi / 2, math.pi / 2) for x in range(100000)]
     for polynomial in range(1, 7):
         start_time = time.time()
         [compute_polynomial(polynomial, num) for num in nums]
+        print("P{}: {:.5f} sec".format(polynomial, time.time() - start_time))
+
+    print("\nVarianta nesimplificata")
+    for polynomial in range(1, 7):
+        start_time = time.time()
+        [compute_polynomial_lazy(polynomial, num) for num in nums]
+
         print("P{}: {:.5f} sec".format(polynomial, time.time() - start_time))
 
     return best_each
