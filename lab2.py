@@ -120,8 +120,9 @@ if __name__ == '__main__':
     print("Det(A) : ", det(D))
     # print(numpy.linalg.det(A))
 
-    print(matmult(A, [[1], [1], [1]]))
-    print("Ax = b \nX = \n", np.solve(A, [[6.5], [26.25], [50.0]]))
+
+    print('\n\n============')
+    print("A * [1, 1, 1]: ", matmult(A, [[1], [1], [1]]))
 
     # print("direct subs ", invers_substitution(A, [6.5, 26.25, 50.0]))
 

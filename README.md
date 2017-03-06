@@ -1,1 +1,3 @@
-# CN_lab
+# HW 2
+
+To do : GUI
