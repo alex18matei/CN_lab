@@ -6,5 +6,5 @@
 - [x] Adunare matrici
 - [x] Înmulțire cu vector
 - [x] Înmulțire cu matrici
+- [x] Interfață
 - [ ] Refactorizare/optimizare
-- [ ] Interfață
