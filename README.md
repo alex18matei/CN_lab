@@ -5,5 +5,6 @@
 - [x] Comparare matrici
 - [x] Adunare matrici
 - [x] Înmulțire cu vector
-- [ ] Înmulțire cu matrici
+- [x] Înmulțire cu matrici
+- [ ] Refactorizare/optimizare
 - [ ] Interfață
