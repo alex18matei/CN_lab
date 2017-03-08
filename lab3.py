@@ -1,9 +1,186 @@
+import enum
 import copy
-import os.path
+import os
+import sys
+
+from tkinter import *
+from tkinter.scrolledtext import *
+from tkinter.filedialog import *
 
 DATA_DIR = 'data'
 LIMIT = 10
 EPSILON = 10**(-9)
+
+RowType = enum.IntEnum('RowType', 'MAT_A MAT_B MAT_ADD MAT_MUL')
+
+
+class GUIApp(Frame):
+    def __init__(self, master=None):
+        super().__init__(master)
+
+        self.fname = [None, ]
+        self.a = None
+        self.b = None
+        self.aplusb = None
+        self.aorib = None
+
+        self.pack()
+        self.create_widgets()
+
+    def create_row(self, text, num):
+        grid_cfg = {'padx': 5, 'pady': 5, 'row': num.value}
+
+        self.fname.append(StringVar())
+
+        Label(self, text=text).grid(**grid_cfg)
+
+        (Entry(self, textvariable=self.fname[num], width=35)
+         .grid(column=1, **grid_cfg))
+
+        (Button(self,
+                text='Browse...',
+                command=getattr(self, 'btn_browse' + str(num.value)))
+         .grid(column=2, **grid_cfg))
+
+        (Button(self,
+                text='Load',
+                command=getattr(self, 'btn_load' + str(num.value)))
+         .grid(column=3, **grid_cfg))
+
+        (Button(self,
+                text='Verify Items',
+                command=getattr(self, 'btn_vitems' + str(num.value)))
+         .grid(column=4, **grid_cfg))
+
+        (Button(self,
+                text='Verify Vector',
+                command=getattr(self, 'btn_vvect' + str(num.value)))
+         .grid(column=5, **grid_cfg))
+
+    def create_output_win(self):
+        self.out_buffer = ScrolledText(self, bg='white', height=10)
+        self.out_buffer.grid({'row': 8, 'columnspan': 6})
+
+    def create_op_buttons(self):
+        (Button(self, text='Verify Sum', command=self.verify_sum)
+         .grid({'row': 5}))
+        (Button(self, text='Verify Product', command=self.verify_product)
+         .grid({'row': 5, 'column': 1}))
+
+    def create_widgets(self):
+        self.create_row('Matrix A', RowType.MAT_A)
+        self.create_row('Matrix B', RowType.MAT_B)
+        self.create_row('A + B', RowType.MAT_ADD)
+        self.create_row('A * B', RowType.MAT_MUL)
+
+        self.create_op_buttons()
+
+        self.create_output_win()
+
+    def verify_sum(self):
+        if (self.is_loaded(self.a, 'A') and
+                self.is_loaded(self.b, 'B') and
+                self.is_loaded(self.aplusb, 'AplusB')):
+
+            msg = '>>> matcmp(A + B, aplusb)'
+            res = matcmp(matadd(self.a, self.b), self.aplusb)
+
+            self.out_buffer.insert(END, msg + '\n')
+            self.out_buffer.insert(END, str(res) + '\n')
+            self.out_buffer.see(END)
+
+    def verify_product(self):
+        if (self.is_loaded(self.a, 'A') and
+                self.is_loaded(self.b, 'B') and
+                self.is_loaded(self.aorib, 'AoriB')):
+
+            msg = '>>> matcmp(A * B, aorib)'
+            res = matcmp(matmul(self.a, self.b), self.aorib)
+
+            self.out_buffer.insert(END, msg + '\n')
+            self.out_buffer.insert(END, str(res) + '\n')
+            self.out_buffer.see(END)
+
+    def btn_browse(self, num):
+        cfg = {
+            'multiple': False,
+            'initialdir': os.getcwd(),
+        }
+        self.fname[num].set(askopenfilename(**cfg))
+
+    def btn_browse1(self):
+        self.btn_browse(RowType.MAT_A)
+
+    def btn_browse2(self):
+        self.btn_browse(RowType.MAT_B)
+
+    def btn_browse3(self):
+        self.btn_browse(RowType.MAT_ADD)
+
+    def btn_browse4(self):
+        self.btn_browse(RowType.MAT_MUL)
+
+    def btn_load1(self):
+        self.a = Matrix(self.fname[RowType.MAT_A].get())
+
+    def btn_load2(self):
+        self.b = Matrix(self.fname[RowType.MAT_B].get())
+
+    def btn_load3(self):
+        self.aplusb = Matrix(self.fname[RowType.MAT_ADD].get())
+
+    def btn_load4(self):
+        self.aorib = Matrix(self.fname[RowType.MAT_MUL].get())
+
+    def is_loaded(self, mat, mname):
+        if not mat:
+            self.out_buffer.insert(END, 'Matrix {} not loaded\n'.format(mname))
+            self.out_buffer.see(END)
+            return False
+        return True
+
+    def btn_vitems1(self):
+        if self.is_loaded(self.a, 'A'):
+            self.a.verify(self.out_buffer)
+        self.out_buffer.see(END)
+
+    def btn_vitems2(self):
+        if self.is_loaded(self.b, 'B'):
+            self.b.verify(self.out_buffer)
+        self.out_buffer.see(END)
+
+    def btn_vitems3(self):
+        if self.is_loaded(self.aplusb, 'AplusB'):
+            self.aplusb.verify(self.out_buffer)
+        self.out_buffer.see(END)
+
+    def btn_vitems4(self):
+        if self.is_loaded(self.aorib, 'AoriB'):
+            self.aorib.verify(self.out_buffer)
+        self.out_buffer.see(END)
+
+    def btn_vvect(self, mat, mname):
+        if not self.is_loaded(mat, mname):
+            return
+
+        msg = ('>>> matmulv({m}, [i for i in range({m}.n, 0, -1)]) == {m}.b'
+               .format(m=mname))
+        res = matmulv(mat, [i for i in range(mat.n, 0, -1)]) == mat.b
+        self.out_buffer.insert(END, msg + '\n')
+        self.out_buffer.insert(END, str(res) + '\n')
+        self.out_buffer.see(END)
+
+    def btn_vvect1(self):
+        self.btn_vvect(self.a, 'A')
+
+    def btn_vvect2(self):
+        self.btn_vvect(self.a, 'B')
+
+    def btn_vvect3(self):
+        self.btn_vvect(self.aplusb, 'AplusB')
+
+    def btn_vvect4(self):
+        self.btn_vvect(self.aorib, 'AoriB')
 
 
 class Matrix:
@@ -23,15 +200,19 @@ class Matrix:
         self.pointers = [i for i in range(self.n + 2)]
         self.diag = [0, ] * self.n
 
-    def verify(self):
-        if self.fname is None:
-            return
+    def verify(self, buffer=None):
         for i in range(1, self.n + 1):
             starta = self.pointers[i]
             enda = self.pointers[i + 1] - 1
             if len(self.non_diag[starta:enda]) > LIMIT:
-                print('Mai mult de {} elemente pe linia {} din matricea din '
-                      'fisierul {}'.format(LIMIT, i, self.fname))
+                msg = ('Mai mult de {} elemente pe linia {} din matricea din '
+                       'fisierul {}'.format(LIMIT,
+                                            i,
+                                            os.path.basename(self.fname)))
+                if buffer is None:
+                    print(msg)
+                else:
+                    buffer.insert(END, msg + '\n')
 
     def add_item(self, val, row, col):
         found = False
@@ -169,7 +350,7 @@ def matmul(A, B):
     return R
 
 
-if __name__ == '__main__':
+def nogui():
     a = Matrix(os.path.join(DATA_DIR, 'a.txt'))
     b = Matrix(os.path.join(DATA_DIR, 'b.txt'))
     aplusb = Matrix(os.path.join(DATA_DIR, 'aplusb.txt'))
@@ -182,3 +363,16 @@ if __name__ == '__main__':
 
     print(matmulv(a, [i for i in range(2017, 0, -1)]) == a.b)
     print(matmulv(b, [i for i in range(2017, 0, -1)]) == b.b)
+
+
+def gui():
+    root = Tk()
+    app = GUIApp(master=root)
+    app.mainloop()
+
+
+if __name__ == '__main__':
+    if sys.argv[-1] == 'nogui':
+        nogui()
+    else:
+        gui()
