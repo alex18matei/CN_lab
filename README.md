@@ -11,3 +11,7 @@
 - [ ] Optimizare
   - Cel mai mult timp e petrecut în buclele din `Matrix#add_item()`. Încă nu
     prea știu cum să le optimizez. Pe laptop-ul meu, `matmul()` ia 23.3 sec.
+  - Dacă transform tema 3 în modul de Cython, pe laptop-ul meu `nogui()` scade
+    de la ~44 sec la ~19 sec.
+  - Se poate optimiza și mai mult, dacă folosesc trei vectori în loc de un
+    singur vector de tuple, dar ar fi mult de modificat.
