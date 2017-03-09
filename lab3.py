@@ -267,7 +267,8 @@ def matmulv(A, t):
         starta = A.pointers[row]
         enda = A.pointers[row + 1] - 1
         res = A.diag[row - 1] * t[row - 1]
-        for elem in A.non_diag[starta:enda]:
+        slice = A.non_diag[starta:enda]
+        for elem in slice:
             res += elem[0] * t[elem[1]]
 
         R.append(res)
@@ -312,10 +313,8 @@ def nogui():
     aplusb = Matrix(os.path.join(DATA_DIR, 'aplusb.txt'))
     aorib = Matrix(os.path.join(DATA_DIR, 'aorib.txt'))
 
-    R = matadd(a, b)
-    print(matcmp(R, aplusb))
-    S = matmul(a, b)
-    print(matcmp(S, aorib))
+    print(matcmp(matadd(a, b), aplusb))
+    print(matcmp(matmul(a, b), aorib))
 
     print(matmulv(a, [i for i in range(2017, 0, -1)]) == a.b)
     print(matmulv(b, [i for i in range(2017, 0, -1)]) == b.b)
