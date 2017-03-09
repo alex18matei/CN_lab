@@ -19,10 +19,7 @@ class GUIApp(Frame):
         super().__init__(master)
 
         self.fname = [None, ]
-        self.a = None
-        self.b = None
-        self.aplusb = None
-        self.aorib = None
+        self.matrix = [None, ]
 
         self.pack()
         self.create_widgets()
@@ -31,30 +28,23 @@ class GUIApp(Frame):
         grid_cfg = {'padx': 5, 'pady': 5, 'row': num.value}
 
         self.fname.append(StringVar())
+        self.matrix.append(None)
 
         Label(self, text=text).grid(**grid_cfg)
 
         (Entry(self, textvariable=self.fname[num], width=35)
          .grid(column=1, **grid_cfg))
 
-        (Button(self,
-                text='Browse...',
-                command=getattr(self, 'btn_browse' + str(num.value)))
+        (Button(self, text='Browse...', command=lambda: self.btn_browse(num))
          .grid(column=2, **grid_cfg))
 
-        (Button(self,
-                text='Load',
-                command=getattr(self, 'btn_load' + str(num.value)))
+        (Button(self, text='Load', command=lambda: self.btn_load(num))
          .grid(column=3, **grid_cfg))
 
-        (Button(self,
-                text='Verify Items',
-                command=getattr(self, 'btn_vitems' + str(num.value)))
+        (Button(self, text='Verify Items', command=lambda: self.btn_vitems(num))
          .grid(column=4, **grid_cfg))
 
-        (Button(self,
-                text='Verify Vector',
-                command=getattr(self, 'btn_vvect' + str(num.value)))
+        (Button(self, text='Verify Vector', command=lambda: self.btn_vvect(num))
          .grid(column=5, **grid_cfg))
 
     def create_output_win(self):
@@ -78,24 +68,32 @@ class GUIApp(Frame):
         self.create_output_win()
 
     def verify_sum(self):
-        if (self.is_loaded(self.a, 'A') and
-                self.is_loaded(self.b, 'B') and
-                self.is_loaded(self.aplusb, 'AplusB')):
+        A = self.matrix[RowType.MAT_A]
+        B = self.matrix[RowType.MAT_B]
+        R = self.matrix[RowType.MAT_ADD]
+
+        if (self.is_loaded(RowType.MAT_A) and
+                self.is_loaded(RowType.MAT_B) and
+                self.is_loaded(RowType.MAT_ADD)):
 
             msg = '>>> matcmp(A + B, aplusb)'
-            res = matcmp(matadd(self.a, self.b), self.aplusb)
+            res = matcmp(matadd(A, B), R)
 
             self.out_buffer.insert(END, msg + '\n')
             self.out_buffer.insert(END, str(res) + '\n')
             self.out_buffer.see(END)
 
     def verify_product(self):
-        if (self.is_loaded(self.a, 'A') and
-                self.is_loaded(self.b, 'B') and
-                self.is_loaded(self.aorib, 'AoriB')):
+        A = self.matrix[RowType.MAT_A]
+        B = self.matrix[RowType.MAT_B]
+        R = self.matrix[RowType.MAT_MUL]
+
+        if (self.is_loaded(RowType.MAT_A) and
+                self.is_loaded(RowType.MAT_B) and
+                self.is_loaded(RowType.MAT_MUL)):
 
             msg = '>>> matcmp(A * B, aorib)'
-            res = matcmp(matmul(self.a, self.b), self.aorib)
+            res = matcmp(matmul(A, B), R)
 
             self.out_buffer.insert(END, msg + '\n')
             self.out_buffer.insert(END, str(res) + '\n')
@@ -108,59 +106,29 @@ class GUIApp(Frame):
         }
         self.fname[num].set(askopenfilename(**cfg))
 
-    def btn_browse1(self):
-        self.btn_browse(RowType.MAT_A)
+    def btn_load(self, num):
+        self.matrix[num] = Matrix(self.fname[num].get())
 
-    def btn_browse2(self):
-        self.btn_browse(RowType.MAT_B)
+    def is_loaded(self, num):
+        mat = self.matrix[num]
+        mname = num.name
 
-    def btn_browse3(self):
-        self.btn_browse(RowType.MAT_ADD)
-
-    def btn_browse4(self):
-        self.btn_browse(RowType.MAT_MUL)
-
-    def btn_load1(self):
-        self.a = Matrix(self.fname[RowType.MAT_A].get())
-
-    def btn_load2(self):
-        self.b = Matrix(self.fname[RowType.MAT_B].get())
-
-    def btn_load3(self):
-        self.aplusb = Matrix(self.fname[RowType.MAT_ADD].get())
-
-    def btn_load4(self):
-        self.aorib = Matrix(self.fname[RowType.MAT_MUL].get())
-
-    def is_loaded(self, mat, mname):
         if not mat:
             self.out_buffer.insert(END, 'Matrix {} not loaded\n'.format(mname))
             self.out_buffer.see(END)
             return False
         return True
 
-    def btn_vitems1(self):
-        if self.is_loaded(self.a, 'A'):
-            self.a.verify(self.out_buffer)
+    def btn_vitems(self, num):
+        if self.is_loaded(num):
+            self.matrix[num].verify(self.out_buffer)
         self.out_buffer.see(END)
 
-    def btn_vitems2(self):
-        if self.is_loaded(self.b, 'B'):
-            self.b.verify(self.out_buffer)
-        self.out_buffer.see(END)
+    def btn_vvect(self, num):
+        mat = self.matrix[num]
+        mname = num.name
 
-    def btn_vitems3(self):
-        if self.is_loaded(self.aplusb, 'AplusB'):
-            self.aplusb.verify(self.out_buffer)
-        self.out_buffer.see(END)
-
-    def btn_vitems4(self):
-        if self.is_loaded(self.aorib, 'AoriB'):
-            self.aorib.verify(self.out_buffer)
-        self.out_buffer.see(END)
-
-    def btn_vvect(self, mat, mname):
-        if not self.is_loaded(mat, mname):
+        if not self.is_loaded(num):
             return
 
         msg = ('>>> matmulv({m}, [i for i in range({m}.n, 0, -1)]) == {m}.b'
@@ -169,18 +137,6 @@ class GUIApp(Frame):
         self.out_buffer.insert(END, msg + '\n')
         self.out_buffer.insert(END, str(res) + '\n')
         self.out_buffer.see(END)
-
-    def btn_vvect1(self):
-        self.btn_vvect(self.a, 'A')
-
-    def btn_vvect2(self):
-        self.btn_vvect(self.a, 'B')
-
-    def btn_vvect3(self):
-        self.btn_vvect(self.aplusb, 'AplusB')
-
-    def btn_vvect4(self):
-        self.btn_vvect(self.aorib, 'AoriB')
 
 
 class Matrix:
