@@ -7,4 +7,7 @@
 - [x] Înmulțire cu vector
 - [x] Înmulțire cu matrici
 - [x] Interfață
-- [ ] Refactorizare/optimizare
+- [x] Refactorizare
+- [ ] Optimizare
+  - Cel mai mult timp e petrecut în buclele din `Matrix#add_item()`. Încă nu
+    prea știu cum să le optimizez. Pe laptop-ul meu, `matmul()` ia 23.3 sec.
