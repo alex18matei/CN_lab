@@ -1,3 +1,7 @@
+# Rezolvarea sistemelor liniare
+
+- [ ] Rezolvare
+
 # Matrici rare
 
 - [x] Reprezentare
@@ -8,7 +12,7 @@
 - [x] Înmulțire cu matrici
 - [x] Interfață
 - [x] Refactorizare
-- [ ] Optimizare
+- [x] Optimizare
   - Cel mai mult timp e petrecut în buclele din `Matrix#add_item()`. Încă nu
     prea știu cum să le optimizez. Pe laptop-ul meu, `matmul()` ia 23.3 sec.
   - Dacă transform tema 3 în modul de Cython, pe laptop-ul meu `nogui()` scade
