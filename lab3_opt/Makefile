@@ -3,5 +3,4 @@ build: matrix.pyx
 
 clean:
 	rm -rf build
-	rm -f *.dll *.so *.a
 	rm -f matrix.c
