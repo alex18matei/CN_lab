@@ -1,6 +1,9 @@
 # Rezolvarea sistemelor liniare
 
-- [ ] Rezolvare
+- [ ] Reparat bug
+- [ ] Metoda gradienților bi-conjugați stabilizată
+  - Documentație
+- [ ] Testat pe toate matricile
 
 # Matrici rare
 
