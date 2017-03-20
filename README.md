@@ -1,6 +1,8 @@
 # Rezolvarea sistemelor liniare
 
-- [ ] Reparat bug
+- [ ] Pe matricea 4 nu dă bine, dar pe celelalte trei, plus pe una găsită pe
+net, dă corect. Soluția matricei 4 are niște "?!?!" în PDF, deci probabil că
+acolo e ok.
 - [ ] Metoda gradienților bi-conjugați stabilizată
   - Documentație
 - [ ] Testat pe toate matricile
