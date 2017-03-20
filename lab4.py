@@ -16,10 +16,11 @@ def max_norm(x1, x2):
 
     Calculam ||x1 - x2||
     """
-    return max(zip(x1, x2), key=lambda x: abs(x[0] - x[1]))
+    res = max(zip(x1, x2), key=lambda x: abs(x[0] - x[1]))
+    return abs(res[0] - res[1])
 
 
-def one_matrix(num=1):
+def solve(num=1):
     mat = matrix.Matrix(os.path.join(DATA_DIR,
                                      'm_rar_2017_{}.txt'.format(str(num))))
 
@@ -54,9 +55,11 @@ def one_matrix(num=1):
     print('matricea {}: {} iteratii:'.format(num, k + 1), end=' ')
     if delta < EPSILON:
         print(xgs)
+        print('||A*xgs - b|| = {}'.format(max_norm(matrix.matmulv(mat, xgs),
+                                                   mat.b)))
     else:
         print('divergenta')
 
 
 if __name__ == '__main__':
-    one_matrix(1)
+    solve(1)
