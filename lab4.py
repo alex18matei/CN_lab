@@ -6,6 +6,8 @@ import matrix
 
 KMAX = 10000
 DELTA_UPPER = 10 ** 8
+EPSILON = 0.000000000000000001
+DATA_DIR = 'data'
 
 
 def max_norm(x1, x2):
@@ -16,17 +18,16 @@ def max_norm(x1, x2):
     """
     return max(zip(x1, x2), key=lambda x: abs(x[0] - x[1]))
 
+
 def one_matrix(num=1):
-    mat = matrix.Matrix(os.path.join(matrix.DATA_DIR,
-                                     'testa.txt'))
-                                     # 'm_rar_2017_{}.txt'.format(str(num))))
+    mat = matrix.Matrix(os.path.join(DATA_DIR,
+                                     'm_rar_2017_{}.txt'.format(str(num))))
 
     if not all(mat.diag):
         print('0 pe diagonala in matricea {}'.format(str(num)))
         return
 
     xgs = [0, ] * mat.n
-    print(mat.non_diag)
 
     for k in range(KMAX):
 
@@ -46,19 +47,16 @@ def one_matrix(num=1):
             delta += (new_val - xgs[i]) ** 2
             xgs[i] = new_val
 
-        print(xgs)
-        print(delta)
         delta = math.sqrt(delta)
-        print(delta)
-        if not matrix.EPSILON <= delta <= DELTA_UPPER:
+        if not EPSILON <= delta <= DELTA_UPPER:
             break
 
     print('matricea {}: {} iteratii:'.format(num, k + 1), end=' ')
-    if delta < matrix.EPSILON:
+    if delta < EPSILON:
         print(xgs)
     else:
         print('divergenta')
 
 
 if __name__ == '__main__':
-    one_matrix(4)
+    one_matrix(1)
