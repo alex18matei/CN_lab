@@ -20,7 +20,76 @@ def max_norm(x1, x2):
     return abs(res[0] - res[1])
 
 
-def solve(num=1):
+def dot(a, b):
+    return sum(x1 * x2 for (x1, x2) in zip(a, b))
+
+
+def vecaddv(a, b):
+    return [x + y for (x, y) in zip(a, b)]
+
+
+def vecmulv(a, b):
+    return [x * y for (x, y) in zip(a, b)]
+
+
+def vecsubv(a, b):
+    return [x - y for (x, y) in zip(a, b)]
+
+
+def vecmuls(v, s):
+    return [x * s for x in v]
+
+
+def vecadds(v, s):
+    return [x + s for x in v]
+
+
+def bicgstab(num=1):
+    mat = matrix.Matrix(os.path.join(DATA_DIR,
+                                     'm_rar_2017_{}.txt'.format(str(num))))
+
+    x = [0, ] * mat.n
+    nb = math.sqrt(sum(i ** 2 for i in mat.b))
+
+    r0 = [b - e for (b, e) in zip(mat.b, matrix.matmulv(mat, x))]
+
+    r = [b - e for (b, e) in zip(mat.b, matrix.matmulv(mat, x))]
+
+    for k in range(KMAX):
+        rho1 = dot(r0, r)
+
+        if rho1 == 0:
+            print('Method fails')
+            return
+
+        if k == 0:
+            p = r
+        else:
+            beta = (rho1 / rho0) * (alpha / omega)
+            p = vecaddv(r, vecmuls(vecsubv(p, vecmuls(v, omega)), beta))
+
+        v = matrix.matmulv(mat, p)
+        alpha = rho1 / dot(r0, v)
+        s = vecsubv(r, vecmuls(v, alpha))
+
+        x = vecaddv(x, vecmuls(p, alpha))
+
+        if math.sqrt(sum(i ** 2 for i in s)) / nb < EPSILON:
+            return x
+
+        t = matrix.matmulv(mat, s)
+        omega = dot(t, s) / dot(t, t)
+        x = vecaddv(x, vecmuls(s, omega))
+        r = vecsubv(s, vecmuls(t, omega))
+
+        if math.sqrt(sum(i ** 2 for i in x)) / nb < EPSILON:
+            return x
+
+        rho0 = rho1
+
+
+
+def gauss_seidel(num=1):
     mat = matrix.Matrix(os.path.join(DATA_DIR,
                                      'm_rar_2017_{}.txt'.format(str(num))))
 
@@ -62,4 +131,5 @@ def solve(num=1):
 
 
 if __name__ == '__main__':
-    solve(1)
+    # gauss_seidel(2)
+    print(bicgstab(3))
