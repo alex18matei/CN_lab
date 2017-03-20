@@ -1,11 +1,12 @@
 # Rezolvarea sistemelor liniare
 
-- [ ] Pe matricea 4 nu dă bine, dar pe celelalte trei, plus pe una găsită pe
-net, dă corect. Soluția matricei 4 are niște "?!?!" în PDF, deci probabil că
-acolo e ok.
 - [ ] Metoda gradienților bi-conjugați stabilizată
   - Documentație
-- [ ] Testat pe toate matricile
+- [ ] Interfață
+- [x] Testat pe toate matricile
+  - Pe matricea 4 nu dă bine, dar pe celelalte trei, plus pe una găsită pe net,
+    dă corect. Soluția matricei 4 are niște "?!?!" în PDF, deci probabil că
+    acolo e ok.
 
 # Matrici rare
 
