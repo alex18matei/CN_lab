@@ -1,5 +1,6 @@
 import math
 import os.path
+import sys
 
 import matrix
 
@@ -131,5 +132,5 @@ def gauss_seidel(num=1):
 
 
 if __name__ == '__main__':
-    # gauss_seidel(2)
-    print(bicgstab(3))
+    # gauss_seidel(int(sys.argv[1]))
+    bicgstab(int(sys.argv[1]))
