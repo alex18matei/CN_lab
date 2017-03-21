@@ -1,0 +1,51 @@
+Metoda Gradienților Bi-Conjugați Stabilizată
+============================================
+
+# Introducere
+
+Metoda gradienților bi-conjugați stabilizată, abreviată BiCGSTAB, este o metodă
+iterativă de rezolvare a sistemelor liniare nesimetrice. A fost creată de
+matematicianul olandez Hendrik Albertus van der Vorst, și converge mai repede și
+mai fin decât metoda gradienților bi-conjugați. Spre deosebire de metoda
+gradienților conjugați, BiCGSTAB poate fi aplicată sistemelor liniare
+nesimetrice.
+
+# Algoritm
+
+Input:  A matrice n x n
+        b vector a.i. A * x = b
+
+Output: O aproximare a lui x
+
+
+Fie p, r, r0, s, t, v, x vectori
+    alfa, beta, omega, rho0, rho1 scalari
+
+- x <- [0, ..., 0]
+- r0 <- r <- b - A * x
+- la fiecare iterație...
+    * rho1 <- <r0, r>       // <u, v> este produsul scalar a doi vectori
+    * dacă rho1 = 0, nu putem aplica algoritmul
+    * la prima iterație
+        + p <- r
+    * altfel
+        + beta <- (rho1 / rho0) * (alfa / omega)
+        + p <- r + beta * (p - omega * v)
+    * v <- A * p
+    * alfa <- rho1 / <r0, v>
+    * s <- r - v * alfa
+    * x <- x + p * alfa
+    * dacă ||s||_2 este suficient de mic:
+        + x este aproximarea dată de algoritm
+    * t <- A * s
+    * omega <- <t, s> / <t, t>
+    * x <- x + s * omega
+    * r <- s - t * omega
+    * în caz de convergență, x este aproximarea dată de algoritm
+
+
+# Referințe
+
+1. Van der Vorst, H. A. (2002). "Iterative Methods for Large Linear Systems"
+2. https://en.wikipedia.org/wiki/Biconjugate_gradient_stabilized_method
+3. http://math.nist.gov/iml++/bicgstab.h.txt
