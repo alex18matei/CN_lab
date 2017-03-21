@@ -76,7 +76,7 @@ def bicgstab(num=1):
         x = vecaddv(x, vecmuls(p, alpha))
 
         if math.sqrt(sum(i ** 2 for i in s)) / nb < EPSILON:
-            return x
+            break
 
         t = matrix.matmulv(mat, s)
         omega = dot(t, s) / dot(t, t)
@@ -84,9 +84,18 @@ def bicgstab(num=1):
         r = vecsubv(s, vecmuls(t, omega))
 
         if math.sqrt(sum(i ** 2 for i in x)) / nb < EPSILON:
-            return x
+            break
 
         rho0 = rho1
+
+    print('matricea {}: {} iteratii:'.format(num, k + 1), end=' ')
+    if (math.sqrt(sum(i ** 2 for i in x)) / nb < EPSILON or
+            math.sqrt(sum(i ** 2 for i in s)) / nb):
+        print(x)
+        print('||A*x - b|| = {}'.format(max_norm(matrix.matmulv(mat, x),
+                                                 mat.b)))
+    else:
+        print('divergenta')
 
 
 
