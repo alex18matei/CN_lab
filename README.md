@@ -1,7 +1,8 @@
 # Rezolvarea sistemelor liniare
 
-- [ ] Documentație
-- [ ] Interfață
+- [x] Interfață
+  - Scroll-ul merge foarte încet
+- [x] Documentație
 - [x] Metoda gradienților bi-conjugați stabilizată
 - [x] Testat pe toate matricile
   - Pe matricea 4 nu dă bine, dar pe celelalte trei, plus pe una găsită pe net,
