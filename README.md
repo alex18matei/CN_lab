@@ -26,3 +26,8 @@
     de la ~44 sec la ~19 sec.
   - Se poate optimiza și mai mult, dacă folosesc trei vectori în loc de un
     singur vector de tuple, dar ar fi mult de modificat.
+	
+# Inversa unei matrice
+To do:
+- [ ] interfata grafica
+- [ ] bonus 15p
