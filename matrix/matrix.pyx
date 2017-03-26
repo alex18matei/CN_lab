@@ -214,6 +214,28 @@ class Matrix:
                 else:
                     self.add_item(float(n), int(i) + 1, int(j))
 
+    def is_symmetrical(self):
+        for row in range(1, self.n + 1):
+            start = self.pointers[row]
+            end = self.pointers[row + 1] - 1
+            slice = self.non_diag[start:end]
+
+            for elem in slice:
+
+                # p-ul vine de la prim :D startp = start'
+                startp = self.pointers[elem[1] + 1]
+                endp = self.pointers[elem[1] + 2] - 1
+                slicep = self.non_diag[startp:endp]
+
+                for elemp in slicep:
+                    if (elemp[1] == row - 1 and
+                            abs(elemp[0] - elem[0]) < EPSILON):
+                        break
+                else:   # daca s-a gasit elementul simetric, nu se intra aici
+                    return False
+
+        return True
+
     def __str__(self):
         return '{}\n{}'.format(self.non_diag, self.diag)
 
