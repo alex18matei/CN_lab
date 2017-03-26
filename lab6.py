@@ -1,5 +1,10 @@
 import math
 import random
+import sys
+
+from tkinter import *
+from tkinter.scrolledtext import *
+from tkinter.filedialog import *
 
 import numpy as np
 from scipy import linalg
@@ -9,6 +14,103 @@ import matrix
 
 NUM_ELEM_MAX = 61000
 KMAX = 1000000
+
+
+class GUIApp(Frame):
+    def __init__(self, master=None):
+        super().__init__(master)
+
+        self.rand_rows = IntVar()
+        self.power_fname = StringVar()
+        self.svd_fname = StringVar()
+        self.mat_rand = None
+        self.mat_read = None
+        self.mat_svd = None
+
+        self.pack()
+        self.create_widgets()
+
+    def create_rand_row(self):
+        grid_cfg = {'padx': 5, 'pady': 5, 'row': 1}
+
+        (Entry(self, textvariable=self.rand_rows, width=35)
+         .grid(column=1, **grid_cfg))
+
+        (Button(self, text='Generate Matrix', command=self.gen_mat)
+         .grid(column=2, **grid_cfg))
+
+        (Button(self, text='Verify Symmetry', command=lambda: self.verify(1))
+         .grid(column=3, **grid_cfg))
+
+        (Button(self, text='Compute Vectors', command=lambda: self.compute(1))
+         .grid(column=4, **grid_cfg))
+
+    def create_read_row(self):
+        grid_cfg = {'padx': 5, 'pady': 5, 'row': 2}
+
+        (Entry(self, textvariable=self.power_fname, width=35)
+         .grid(column=1, **grid_cfg))
+
+        (Button(self, text='Read Matrix', command=lambda: self.read_mat(2))
+         .grid(column=2, **grid_cfg))
+
+        (Button(self, text='Verify Symmetry', command=lambda: self.verify(2))
+         .grid(column=3, **grid_cfg))
+
+        (Button(self, text='Compute Vectors', command=lambda: self.compute(2))
+         .grid(column=4, **grid_cfg))
+
+    def create_svd_row(self):
+        grid_cfg = {'padx': 5, 'pady': 5, 'row': 3}
+
+        (Entry(self, textvariable=self.svd_fname, width=35)
+         .grid(column=1, **grid_cfg))
+
+        (Button(self, text='Read Matrix', command=lambda: self.read_mat(3))
+         .grid(column=2, **grid_cfg))
+
+        (Button(self, text='Decompose', command=self.decompose)
+         .grid(column=3, **grid_cfg))
+
+    def create_widgets(self):
+
+        self.create_rand_row()
+        self.create_read_row()
+        self.create_svd_row()
+
+        self.out_buffer = ScrolledText(self, bg='white', height=10)
+        self.out_buffer.grid({'row': 8, 'columnspan': 6})
+
+    def gen_mat(self):
+        self.mat_rand = gen_rand_mat(self.rand_rows.get())
+
+    def read_mat(self, num):
+        if num == 2:
+            self.mat_read = matrix.Matrix(self.power_fname.get(), False)
+        elif num == 3:
+            self.mat_svd = read_mat(self.svd_fname.get())
+
+    def decompose(self):
+        if self.mat_svd is not None:
+            do_svd(self.mat_svd, self.out_buffer)
+
+    def verify(self, num):
+        if num == 1:
+            if self.mat_rand is not None:
+                self.out_buffer.insert(END, '>>> mat_rand.is_symmetrical()\n')
+                self.out_buffer.insert(END,
+                                       str(self.mat_rand.is_symmetrical()) + '\n\n')
+        elif num == 2:
+            if self.mat_read is not None:
+                self.out_buffer.insert(END, '>>> mat_read.is_symmetrical()\n')
+                self.out_buffer.insert(END,
+                                       str(self.mat_read.is_symmetrical()) + '\n\n')
+
+    def compute(self, num):
+        if num == 1:
+            power_method(self.mat_rand, self.out_buffer)
+        elif num == 2:
+            power_method(self.mat_read, self.out_buffer)
 
 
 def gen_rand_mat(n=501):
@@ -34,7 +136,7 @@ def gen_rand_mat(n=501):
     return A
 
 
-def power_method(A):
+def power_method(A, buffer=None):
 
     w = [random.random() for _ in range(A.n)]
 
@@ -57,47 +159,74 @@ def power_method(A):
         print('Nu s-a gasit')
         return
 
-    print('Valoare Proprie: {}'.format(l))
-    print('Vector Propriu: [{}, {}, ..., {}, {}]'
-          .format(v[0], v[1], v[-2], v[-1]))
+    if buffer is None:
+        print('Valoare Proprie: {}'.format(l))
+        print('Vector Propriu: [{}, {}, ..., {}, {}]'
+              .format(v[0], v[1], v[-2], v[-1]))
+    else:
+        buffer.insert(END, 'Valoare Proprie: {}\n'.format(l))
+        buffer.insert(END, ('Vector Propriu: [{}, {}, ..., {}, {}]\n\n'
+                            .format(v[0], v[1], v[-2], v[-1])))
 
 
-def do_svd(mat):
-    print('Descompunerea dupa valori singulare')
-    print('===================================')
-    print('')
+def do_svd(mat, buffer=None):
+    if buffer is None:
+        print('Descompunerea dupa valori singulare')
+        print('===================================')
+        print('')
+    else:
+        buffer.insert(END, 'Descompunerea dupa valori singulare\n')
+        buffer.insert(END, '===================================\n')
+        buffer.insert(END, '\n')
 
     A = np.array(mat)
     m, n = A.shape
     U, s, Vt = linalg.svd(A)
     S = linalg.diagsvd(s, m, n)
 
-    print('U')
-    print('====')
-    print(U)
-    print('')
+    if buffer is None:
+        print('U')
+        print('====')
+        print(U)
+        print('')
 
-    print('S')
-    print('====')
-    print(S)
-    print('')
+        print('S')
+        print('====')
+        print(S)
+        print('')
 
-    print('Vt')
-    print('====')
-    print(Vt)
-    print('')
+        print('Vt')
+        print('====')
+        print(Vt)
+        print('')
+    else:
+        buffer.insert(END, 'U\n')
+        buffer.insert(END, '====\n')
+        buffer.insert(END, U)
+        buffer.insert(END, '\n\n')
+
+        buffer.insert(END, 'S\n')
+        buffer.insert(END, '====\n')
+        buffer.insert(END, S)
+        buffer.insert(END, '\n\n')
+
+        buffer.insert(END, 'Vt\n')
+        buffer.insert(END, '====\n')
+        buffer.insert(END, Vt)
+        buffer.insert(END, '\n\n')
 
 
-def read_mat():
+def read_mat(fname=None):
     mat = []
-    with open('data/test_svd.txt') as fp:
+    fname = 'test_svd.txt' if fname is None else fname
+    with open(os.path.join('data', fname)) as fp:
         for line in fp:
             mat.append([float(i) for i in line.split()])
 
     return mat
 
 
-def main():
+def nogui():
     mat_rand = gen_rand_mat()
     mat_read = matrix.Matrix('m_rar_sim_2017.txt', False)
 
@@ -120,5 +249,15 @@ def main():
     do_svd(read_mat())
 
 
+def gui():
+    root = Tk()
+    root.geometry('800x600')
+    app = GUIApp(master=root)
+    app.mainloop()
+
+
 if __name__ == '__main__':
-    main()
+    if sys.argv[-1] == 'nogui':
+        nogui()
+    else:
+        gui()

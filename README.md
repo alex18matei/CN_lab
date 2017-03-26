@@ -39,4 +39,4 @@
 
 - [x] Aproximarea valorilor și vectorilor proprii
 - [x] SVD
-- [ ] Interfață
+- [x] Interfață
