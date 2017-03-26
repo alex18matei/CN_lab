@@ -9,6 +9,7 @@
     dă corect. Soluția matricei 4 are niște "?!?!" în PDF, deci probabil că
     acolo e ok.
 
+
 # Matrici rare
 
 - [x] Reprezentare
@@ -26,8 +27,16 @@
     de la ~44 sec la ~19 sec.
   - Se poate optimiza și mai mult, dacă folosesc trei vectori în loc de un
     singur vector de tuple, dar ar fi mult de modificat.
-	
+
+
 # Inversa unei matrice
-To do:
+
 - [ ] interfata grafica
 - [ ] bonus 15p
+
+
+# Aproximarea valorilor şi vectorilor proprii, SVD
+
+- [x] Aproximarea valorilor și vectorilor proprii
+- [ ] SVD
+- [ ] Interfață
