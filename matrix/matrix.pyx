@@ -7,7 +7,7 @@ from tkinter import *
 from tkinter.scrolledtext import *
 from tkinter.filedialog import *
 
-DATA_DIR = os.path.join('..', 'data')
+DATA_DIR = 'data'
 LIMIT = 10
 EPSILON = 10**(-7)
 
@@ -140,15 +140,16 @@ class GUIApp(Frame):
 
 
 class Matrix:
-    def __init__(self, fname=None):
+    def __init__(self, fname=None, has_vector=True):
         self.b = []
         self.diag = []
         self.non_diag = []
         self.above_limit = []
-        self.fname = fname
         self.pointers = []
+        self.fname = os.path.join(DATA_DIR, fname) if fname else fname
+        self.has_vector = has_vector
         if fname:
-            self.parse(fname)
+            self.parse()
 
     def init_helpers(self):
         self.above_limit = [False, ] * self.n
@@ -190,17 +191,23 @@ class Matrix:
             for i in range(row + 1, self.n + 2):
                 self.pointers[i] += 1
 
-    def parse(self, fname):
-        with open(fname) as fp:
+    def parse(self):
+        if self.fname is None:
+            return
+
+        with open(self.fname) as fp:
             self.n = int(fp.readline())
             fp.readline()
 
             self.init_helpers()
 
-            for n in fp:
-                if n == '\n':
-                    break
-                self.b.append(float(n))
+            if self.has_vector:
+                for n in fp:
+                    if n == '\n':
+                        break
+                    self.b.append(float(n))
+            else:
+                fp.readline()   # skip blank line
 
             for line in fp:
                 n, i, j = line.split(',')
