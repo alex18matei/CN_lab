@@ -206,8 +206,6 @@ class Matrix:
                     if n == '\n':
                         break
                     self.b.append(float(n))
-            else:
-                fp.readline()   # skip blank line
 
             for line in fp:
                 n, i, j = line.split(',')
