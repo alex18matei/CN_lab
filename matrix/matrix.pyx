@@ -9,7 +9,7 @@ from tkinter.filedialog import *
 
 DATA_DIR = 'data'
 LIMIT = 10
-EPSILON = 10**(-7)
+EPSILON = 0.0000000001
 
 RowType = enum.IntEnum('RowType', 'MAT_A MAT_B MAT_ADD MAT_MUL')
 
