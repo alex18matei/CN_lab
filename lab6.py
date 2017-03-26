@@ -1,6 +1,9 @@
 import math
 import random
 
+import numpy as np
+from scipy import linalg
+
 import matrix
 
 
@@ -59,6 +62,41 @@ def power_method(A):
           .format(v[0], v[1], v[-2], v[-1]))
 
 
+def do_svd(mat):
+    print('Descompunerea dupa valori singulare')
+    print('===================================')
+    print('')
+
+    A = np.array(mat)
+    m, n = A.shape
+    U, s, Vt = linalg.svd(A)
+    S = linalg.diagsvd(s, m, n)
+
+    print('U')
+    print('====')
+    print(U)
+    print('')
+
+    print('S')
+    print('====')
+    print(S)
+    print('')
+
+    print('Vt')
+    print('====')
+    print(Vt)
+    print('')
+
+
+def read_mat():
+    mat = []
+    with open('data/test_svd.txt') as fp:
+        for line in fp:
+            mat.append([float(i) for i in line.split()])
+
+    return mat
+
+
 def main():
     mat_rand = gen_rand_mat()
     mat_read = matrix.Matrix('m_rar_sim_2017.txt', False)
@@ -69,7 +107,6 @@ def main():
     print(mat_rand.is_symmetrical())
     print('')
     power_method(mat_rand)
-
     print('')
 
     print('Matricea Citita')
@@ -78,6 +115,9 @@ def main():
     print(mat_read.is_symmetrical())
     print('')
     power_method(mat_read)
+    print('')
+
+    do_svd(read_mat())
 
 
 if __name__ == '__main__':
