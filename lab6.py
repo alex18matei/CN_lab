@@ -169,6 +169,7 @@ def power_method(A, buffer=None):
                             .format(v[0], v[1], v[-2], v[-1])))
 
 
+
 def do_svd(mat, buffer=None):
     if buffer is None:
         print('Descompunerea dupa valori singulare')
@@ -184,36 +185,60 @@ def do_svd(mat, buffer=None):
     U, s, Vt = linalg.svd(A)
     S = linalg.diagsvd(s, m, n)
 
+    smax = 0
+    smin = 1000000
+    for elem in s:
+        if elem > 0:
+            if elem < smin:
+                smin = elem
+            if elem > smax:
+                smax = elem
+
+    md = np.subtract(A, U.dot(S.dot(Vt)))
+    try:
+        ds = int(sys.argv[-1])
+    except ValueError:
+        ds = 2
+    As = U.dot(S.dot(Vt))[0:ds, 0:ds]
+
     if buffer is None:
-        print('U')
-        print('====')
-        print(U)
-        print('')
+        print('Valori singulare:', end=' ')
+        print(s)
 
-        print('S')
-        print('====')
-        print(S)
-        print('')
+        print('Rang matrice: {}'.format(len([i for i in s if i > 0])))
 
-        print('Vt')
-        print('====')
-        print(Vt)
-        print('')
+        print('Numar de conditionare: {}'.format(smax / smin))
+
+        print('||A - USVt||inf = {}'.format(md.max()))
+
+        print('As')
+        print(As)
+
+        # print('||A - As||inf = {}'.format(np.subtract(A, As).max()))
     else:
-        buffer.insert(END, 'U\n')
-        buffer.insert(END, '====\n')
-        buffer.insert(END, U)
-        buffer.insert(END, '\n\n')
+        buffer.insert(END, 'Valori singulare: ')
+        buffer.insert(END, s)
+        buffer.insert(END, '\n')
 
-        buffer.insert(END, 'S\n')
-        buffer.insert(END, '====\n')
-        buffer.insert(END, S)
-        buffer.insert(END, '\n\n')
+        buffer.insert(END, 'Rang matrice: ')
+        buffer.insert(END, len([i for i in s if i > 0]))
+        buffer.insert(END, '\n')
 
-        buffer.insert(END, 'Vt\n')
-        buffer.insert(END, '====\n')
-        buffer.insert(END, Vt)
-        buffer.insert(END, '\n\n')
+        buffer.insert(END, 'Numar de conditionare: ')
+        buffer.insert(END, smax / smin)
+        buffer.insert(END, '\n')
+
+        buffer.insert(END, '||A - USVt||inf = ')
+        buffer.insert(END, md.max())
+        buffer.insert(END, '\n')
+
+        buffer.insert(END, 'As\n')
+        buffer.insert(END, As)
+        buffer.insert(END, '\n')
+
+        buffer.insert(END, '||A - As||inf = ')
+        # buffer.insert(END, np.subtract(A, As).max())
+        buffer.insert(END, '\n')
 
 
 def read_mat(fname=None):
@@ -257,7 +282,7 @@ def gui():
 
 
 if __name__ == '__main__':
-    if sys.argv[-1] == 'nogui':
+    if sys.argv[-2] == 'nogui':
         nogui()
     else:
         gui()
