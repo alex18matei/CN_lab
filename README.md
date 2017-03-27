@@ -38,6 +38,5 @@
 # Aproximarea valorilor şi vectorilor proprii, SVD
 
 - [x] Aproximarea valorilor și vectorilor proprii
-- [ ] SVD
-  - Mai am de făcut ultima parte din enunț.
+- [x] SVD
 - [x] Interfață
