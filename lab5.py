@@ -1,6 +1,7 @@
 import copy
 import math
 import pprint
+import numpy
 
 KMAX = 10000
 EPSILON = 10 ** (-10)
@@ -13,7 +14,7 @@ def matmult(m1, m2):
     for i in range(len(m1)):
         for j in range(len(m2[0])):
             sums = 0
-            for k in range(len(m2)):
+            for k in range(len(m1[0])):
                 sums = sums + (m1[i][k] * m2[k][j])
             r.append(sums)
         m.append(r)
@@ -27,9 +28,10 @@ def transpusa(A):
 
 def norma_liniilor(A):
     n = len(A)
+    m = len(A[0])
     max = sum = 0
     for i in range(n):
-        for j in range(n):
+        for j in range(m):
             sum += abs(A[i][j])
         if sum > max:
             max = sum
@@ -39,8 +41,9 @@ def norma_liniilor(A):
 
 def norma_coloanelor(A):
     n = len(A)
+    m = len(A[0])
     max = sum = 0
-    for j in range(n):
+    for j in range(m):
         for i in range(n):
             sum += abs(A[i][j])
         if sum > max:
@@ -51,49 +54,46 @@ def norma_coloanelor(A):
 
 def minus(A):
     n = len(A)
-    return [[-A[i][j] for j in range(n)] for i in range(n)]
+    m = len(A[0])
+    return [[-A[i][j] for j in range(m)] for i in range(n)]
 
 
 def sub(A, B):
     n = len(A)
-    C = [[0] * n for i in range(n)]
+    m = len(A[0])
+    C = [[0] * m for i in range(n)]
     for i in range(n):
-        for j in range(n):
+        for j in range(m):
             C[i][j] = A[i][j] - B[i][j]
     return C
 
 
 def norm(A):
     n = len(A)
+    m = len(A[0])
     sum = 0.0
     for i in range(n):
-        for j in range(n):
+        for j in range(m):
             sum += A[i][j] ** 2
     return math.sqrt(sum)
 
 
-def create_matrix(n):
-    """
-    N-are nevoie sa fie metoda, daca nu accesezi clasa inauntru.
-    """
-    return [[1 if i == j else 2 if i + 1 == j else 0 for j in range(n)]
+def create_matrix(n, m):
+    return [[1 if i == j else 2 if i + 1 == j else 0 for j in range(m)]
             for i in range(n)]
 
 
 class ReverseMatrixMethodBase:
-    """
-    Inainte, `ReverseMatrixMethod1` avea si metode generice, si metode
-    specifice ei. E cam ciudat, ierarhia asta cred ca are mai mult sens.
-    """
-    def __init__(self, dim):
-        self.A = create_matrix(dim)
+    def __init__(self, A):
+        self.A = A
 
     def get_V0(self):
-        n = len(self.A)
+
         A_transpus = transpusa(self.A)
         num = norma_liniilor(self.A) * norma_coloanelor(self.A)
-
-        return [[A_transpus[i][j] / num for j in range(n)] for i in range(n)]
+        n = len(A_transpus)
+        m = len(A_transpus[0])
+        return [[A_transpus[i][j] / num for j in range(m)] for i in range(n)]
 
     def solve(self):
         V1 = self.get_V0()
@@ -114,8 +114,10 @@ class ReverseMatrixMethodBase:
         print('Iteratii: ', k)
         if delta < EPSILON:
             print('Inversa: ' + pprint.pformat(V1))
-            B = matmult(self.A, V1)
-            C = [[B[i][j] - 1 if i == j else B[i][j] for j in range(n)]
+            B = numpy.dot(self.A, V1)
+            n = len(B)
+            m = len(B[0])
+            C = [[B[i][j] - 1 if i == j else B[i][j] for j in range(m)]
                  for i in range(n)]
             print('Norma: ', norma_coloanelor(C))
         else:
@@ -128,8 +130,10 @@ class ReverseMatrixMethod1(ReverseMatrixMethodBase):
 
     def method(self, V0):
         n = len(self.A)
-        B = (matmult(minus(self.A), V0))
-        C = [[B[i][j] + 2 if i == j else B[i][j] for j in range(n)]
+        B = numpy.dot(minus(self.A), V0)
+        n = len(B)
+        m = len(B[0])
+        C = [[B[i][j] + 2 if i == j else B[i][j] for j in range(m)]
              for i in range(n)]
         return matmult(V0, C)
 
@@ -154,25 +158,40 @@ class ReverseMatrixMethod3(ReverseMatrixMethodBase):
         return 'Metoda 3'
 
     def method(self, V0):
-        n = len(self.A)
         B = (matmult(minus(V0), self.A))
-        C = [[B[i][j] + 3 if i == j else B[i][j] for j in range(n)]
+
+        n = len(B)
+        m = len(B[0])
+        C = [[B[i][j] + 3 if i == j else B[i][j] for j in range(m)]
              for i in range(n)]
         D = matmult(C, C)
 
-        E = [[B[i][j] + 1 if i == j else B[i][j] for j in range(n)]
+        E = [[B[i][j] + 1 if i == j else B[i][j] for j in range(m)]
              for i in range(n)]
         F = matmult(E, D)
 
+        n = len(F)
+        m = len(F[0])
         G = [[F[i][j] * 0.25 + 1 if i == j else F[i][j] * 0.25
-              for j in range(n)]
+              for j in range(m)]
              for i in range(n)]
         return matmult(G, V0)
 
 
 if __name__ == '__main__':
     n = 3
+    m = 6
+    A = create_matrix(n, m)
+    print(A)
+    # A = [[-1.086, 0.997],
+    #      [0.283, -1.506],
+    #      [-0.579, 1.651]]
 
-    ReverseMatrixMethod1(n).solve()
-    ReverseMatrixMethod2(n).solve()
-    ReverseMatrixMethod3(n).solve()
+    # A = [[-1.086, 0.283, -0.579], [0.997, -1.506, 1.651]]
+
+    print("inversa")
+    print(numpy.linalg.pinv(A))
+
+    ReverseMatrixMethod1(A).solve()
+    ReverseMatrixMethod2(A).solve()
+    ReverseMatrixMethod3(A).solve()
