@@ -195,10 +195,6 @@ def do_svd(mat, nf, buffer=None):
                 smax = elem
 
     md = np.subtract(A, U.dot(S.dot(Vt)))
-    try:
-        ds = int(sys.argv[-1])
-    except ValueError:
-        ds = 2
 
     As = np.zeros((m, n))
     for i, elem in enumerate(s[:nf]):
