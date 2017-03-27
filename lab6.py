@@ -257,7 +257,6 @@ def read_mat(fname=None):
 
 
 def nogui():
-    """
     mat_rand = gen_rand_mat()
     mat_read = matrix.Matrix('m_rar_sim_2017.txt', False)
 
@@ -276,7 +275,6 @@ def nogui():
     print('')
     power_method(mat_read)
     print('')
-    """
 
     do_svd(read_mat(), int(sys.argv[-1]))
 
