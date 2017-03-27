@@ -2,6 +2,12 @@ import copy
 import math
 import pprint
 import numpy
+import sys
+
+from tkinter import *
+from tkinter.ttk import *
+from tkinter.filedialog import *
+from tkinter.scrolledtext import *
 
 KMAX = 10000
 EPSILON = 10 ** (-10)
@@ -110,18 +116,19 @@ class ReverseMatrixMethodBase:
                 break
             k += 1
 
-        print('\n' + self.__str__())
-        print('Iteratii: ', k)
+        msg = ('\n' + self.__str__() + '\n')
+        msg += ('Iteratii: {}\n'.format(k))
         if delta < EPSILON:
-            print('Inversa: ' + pprint.pformat(V1))
+            msg += ('Inversa: {}\n'.format(pprint.pformat(V1)))
             B = numpy.dot(self.A, V1)
             n = len(B)
             m = len(B[0])
             C = [[B[i][j] - 1 if i == j else B[i][j] for j in range(m)]
                  for i in range(n)]
-            print('Norma: ', norma_coloanelor(C))
+            msg += ('Norma: {}\n'.format(norma_coloanelor(C)))
         else:
-            print('divergenta')
+            msg += ('divergenta')
+        return msg
 
 
 class ReverseMatrixMethod1(ReverseMatrixMethodBase):
@@ -178,20 +185,66 @@ class ReverseMatrixMethod3(ReverseMatrixMethodBase):
         return matmult(G, V0)
 
 
+class GUIApp(Frame):
+    def __init__(self, master=None):
+        super().__init__(master)
+        self.num = None
+        self.pack()
+        self.create_widgets()
+
+    def create_widgets(self):
+        grid_cfg = {'padx': 2, 'pady': 2, 'row': 1}
+
+        self.lb = Combobox(self, values=[1, 2, 3])
+        self.lb.grid(column=3, **grid_cfg)
+
+        self.n_label = Label(self, text="n").grid(column=0, **grid_cfg)
+        self.entry_n = Entry(self)
+        self.entry_n.grid(column=1, **grid_cfg)
+        self.m_label = Label(self, text="m").grid(column=0, **{'row': 2})
+        self.entry_m = Entry(self)
+        self.entry_m.grid(column=1, **{'row': 2})
+
+        # self.entry_A.insert(END, '[[1, 2.5, 3], [2.5, 8.25, 15.5], [3, 15.5, 43]]')
+        # self.entry_b.insert(END, '[6.5, 26.25, 61.5]')
+
+        (Button(self, text='Run', command=self.cmd_btn)
+         .grid(column=4, **grid_cfg))
+
+        self.out_buffer = ScrolledText(self, bg='white', height=20)
+        self.out_buffer.grid({'row': 8, 'columnspan': 6})
+
+    def cmd_btn(self):
+        A = create_matrix(int(self.entry_n.get()), int(self.entry_m.get()))
+        function = 'ReverseMatrixMethod' + self.lb.get() + '(A).solve()'
+        self.out_buffer.insert(END, eval(function))
+
+
+def gui():
+    root = Tk()
+    root.geometry('800x600')
+    app = GUIApp(master=root)
+    app.mainloop()
+
+
 if __name__ == '__main__':
-    n = 3
-    m = 6
-    A = create_matrix(n, m)
-    print(A)
-    # A = [[-1.086, 0.997],
-    #      [0.283, -1.506],
-    #      [-0.579, 1.651]]
 
-    # A = [[-1.086, 0.283, -0.579], [0.997, -1.506, 1.651]]
+    if len(sys.argv) == 3:
+        n = int(sys.argv[1])
+        m = int(sys.argv[2])
+        A = create_matrix(n, m)
+        print(A)
+        # A = [[-1.086, 0.997],
+        #      [0.283, -1.506],
+        #      [-0.579, 1.651]]
 
-    print("inversa")
-    print(numpy.linalg.pinv(A))
+        # A = [[-1.086, 0.283, -0.579], [0.997, -1.506, 1.651]]
 
-    ReverseMatrixMethod1(A).solve()
-    ReverseMatrixMethod2(A).solve()
-    ReverseMatrixMethod3(A).solve()
+        print("inversa")
+        print(numpy.linalg.pinv(A))
+
+        print(ReverseMatrixMethod1(A).solve())
+        print(ReverseMatrixMethod2(A).solve())
+        print(ReverseMatrixMethod3(A).solve())
+    else:
+        gui()
