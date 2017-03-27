@@ -92,7 +92,7 @@ class GUIApp(Frame):
 
     def decompose(self):
         if self.mat_svd is not None:
-            do_svd(self.mat_svd, self.out_buffer)
+            do_svd(self.mat_svd, int(sys.argv[-1]), self.out_buffer)
 
     def verify(self, num):
         if num == 1:
@@ -170,7 +170,7 @@ def power_method(A, buffer=None):
 
 
 
-def do_svd(mat, buffer=None):
+def do_svd(mat, nf, buffer=None):
     if buffer is None:
         print('Descompunerea dupa valori singulare')
         print('===================================')
@@ -199,7 +199,12 @@ def do_svd(mat, buffer=None):
         ds = int(sys.argv[-1])
     except ValueError:
         ds = 2
-    As = U.dot(S.dot(Vt))[0:ds, 0:ds]
+
+    As = np.zeros((m, n))
+    for i, elem in enumerate(s[:nf]):
+        Uu = U[:, i].reshape(m, 1)
+        Vtv = Vt[:, i].reshape(1, n)
+        As = np.add(As, elem * (Uu.dot(Vtv)))
 
     if buffer is None:
         print('Valori singulare:', end=' ')
@@ -214,7 +219,7 @@ def do_svd(mat, buffer=None):
         print('As')
         print(As)
 
-        # print('||A - As||inf = {}'.format(np.subtract(A, As).max()))
+        print('||A - As||inf = {}'.format(np.subtract(A, As).max()))
     else:
         buffer.insert(END, 'Valori singulare: ')
         buffer.insert(END, s)
@@ -237,7 +242,7 @@ def do_svd(mat, buffer=None):
         buffer.insert(END, '\n')
 
         buffer.insert(END, '||A - As||inf = ')
-        # buffer.insert(END, np.subtract(A, As).max())
+        buffer.insert(END, np.subtract(A, As).max())
         buffer.insert(END, '\n')
 
 
@@ -252,6 +257,7 @@ def read_mat(fname=None):
 
 
 def nogui():
+    """
     mat_rand = gen_rand_mat()
     mat_read = matrix.Matrix('m_rar_sim_2017.txt', False)
 
@@ -270,8 +276,9 @@ def nogui():
     print('')
     power_method(mat_read)
     print('')
+    """
 
-    do_svd(read_mat())
+    do_svd(read_mat(), int(sys.argv[-1]))
 
 
 def gui():
