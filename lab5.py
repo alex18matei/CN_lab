@@ -1,6 +1,6 @@
-import sys
-import math
 import copy
+import math
+import pprint
 
 KMAX = 10000
 EPSILON = 10 ** (-10)
@@ -72,15 +72,21 @@ def norm(A):
     return math.sqrt(sum)
 
 
-class ReverseMatrixMethod1():
+def create_matrix(n):
+    """
+    N-are nevoie sa fie metoda, daca nu accesezi clasa inauntru.
+    """
+    return [[1 if i == j else 2 if i + 1 == j else 0 for j in range(n)]
+            for i in range(n)]
+
+
+class ReverseMatrixMethodBase:
+    """
+    Inainte, `ReverseMatrixMethod1` avea si metode generice, si metode
+    specifice ei. E cam ciudat, ierarhia asta cred ca are mai mult sens.
+    """
     def __init__(self, dim):
-        self.A = self.create_matrix(dim)
-
-    def __str__(self):
-        return 'Metoda 1'
-
-    def create_matrix(self, n):
-        return [[1 if i == j else 2 if i + 1 == j else 0 for j in range(n)] for i in range(n)]
+        self.A = create_matrix(dim)
 
     def get_V0(self):
         n = len(self.A)
@@ -88,12 +94,6 @@ class ReverseMatrixMethod1():
         num = norma_liniilor(self.A) * norma_coloanelor(self.A)
 
         return [[A_transpus[i][j] / num for j in range(n)] for i in range(n)]
-
-    def method(self, V0):
-        n = len(self.A)
-        B = (matmult(minus(self.A), V0))
-        C = [[B[i][j] + 2 if i == j else B[i][j] for j in range(n)] for i in range(n)]
-        return matmult(V0, C)
 
     def solve(self):
         V1 = self.get_V0()
@@ -113,51 +113,66 @@ class ReverseMatrixMethod1():
         print('\n' + self.__str__())
         print('Iteratii: ', k)
         if delta < EPSILON:
-            print('Inversa: ' + str(V1))
+            print('Inversa: ' + pprint.pformat(V1))
             B = matmult(self.A, V1)
-            C = [[B[i][j] - 1 if i == j else B[i][j] for j in range(n)] for i in range(n)]
+            C = [[B[i][j] - 1 if i == j else B[i][j] for j in range(n)]
+                 for i in range(n)]
             print('Norma: ', norma_coloanelor(C))
         else:
             print('divergenta')
 
 
-class ReverseMatrixMethod2(ReverseMatrixMethod1):
+class ReverseMatrixMethod1(ReverseMatrixMethodBase):
+    def __str__(self):
+        return 'Metoda 1'
+
+    def method(self, V0):
+        n = len(self.A)
+        B = (matmult(minus(self.A), V0))
+        C = [[B[i][j] + 2 if i == j else B[i][j] for j in range(n)]
+             for i in range(n)]
+        return matmult(V0, C)
+
+
+class ReverseMatrixMethod2(ReverseMatrixMethodBase):
     def __str__(self):
         return 'Metoda 2'
 
     def method(self, V0):
         n = len(self.A)
         B = (matmult(minus(self.A), V0))
-        C = [[B[i][j] + 3 if i == j else B[i][j] for j in range(n)] for i in range(n)]
+        C = [[B[i][j] + 3 if i == j else B[i][j] for j in range(n)]
+             for i in range(n)]
         D = matmult(B, C)
-        F = [[D[i][j] + 3 if i == j else D[i][j] for j in range(n)] for i in range(n)]
+        F = [[D[i][j] + 3 if i == j else D[i][j] for j in range(n)]
+             for i in range(n)]
         return matmult(V0, F)
 
 
-class ReverseMatrixMethod3(ReverseMatrixMethod1):
+class ReverseMatrixMethod3(ReverseMatrixMethodBase):
     def __str__(self):
         return 'Metoda 3'
 
     def method(self, V0):
         n = len(self.A)
         B = (matmult(minus(V0), self.A))
-        C = [[B[i][j] + 3 if i == j else B[i][j] for j in range(n)] for i in range(n)]
+        C = [[B[i][j] + 3 if i == j else B[i][j] for j in range(n)]
+             for i in range(n)]
         D = matmult(C, C)
 
-        E = [[B[i][j] + 1 if i == j else B[i][j] for j in range(n)] for i in range(n)]
+        E = [[B[i][j] + 1 if i == j else B[i][j] for j in range(n)]
+             for i in range(n)]
         F = matmult(E, D)
 
-        G = [[F[i][j] * 0.25 + 1 if i == j else F[i][j] * 0.25 for j in range(n)] for i in range(n)]
+        G = [[F[i][j] * 0.25 + 1 if i == j else F[i][j] * 0.25
+              for j in range(n)]
+             for i in range(n)]
         return matmult(G, V0)
 
 
 if __name__ == '__main__':
     n = 3
-    reverse_matrix1 = ReverseMatrixMethod1(n)
-    reverse_matrix1.solve()
 
-    reverse_matrix2 = ReverseMatrixMethod2(n)
-    reverse_matrix2.solve()
-
-    reverse_matrix3 = ReverseMatrixMethod3(n)
-    reverse_matrix3.solve()
+    ReverseMatrixMethod1(n).solve()
+    ReverseMatrixMethod2(n).solve()
+    ReverseMatrixMethod3(n).solve()
