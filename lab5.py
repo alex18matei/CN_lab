@@ -126,6 +126,13 @@ class ReverseMatrixMethodBase:
             C = [[B[i][j] - 1 if i == j else B[i][j] for j in range(m)]
                  for i in range(n)]
             msg += ('Norma: {}\n'.format(norma_coloanelor(C)))
+
+            # B = numpy.dot(V1, self.A)
+            # n = len(B)
+            # m = len(B[0])
+            # C = [[B[i][j] - 1 if i == j else B[i][j] for j in range(m)]
+            #      for i in range(n)]
+            # msg += ('Norma2: {}\n'.format(norma_coloanelor(C)))
         else:
             msg += ('divergenta')
         return msg
@@ -197,16 +204,16 @@ class GUIApp(Frame):
 
         self.lb = Combobox(self, values=[1, 2, 3])
         self.lb.grid(column=3, **grid_cfg)
+        self.lb.insert(0, '1')
 
         self.n_label = Label(self, text="n").grid(column=0, **grid_cfg)
         self.entry_n = Entry(self)
         self.entry_n.grid(column=1, **grid_cfg)
+        self.entry_n.insert(END, 3)
         self.m_label = Label(self, text="m").grid(column=0, **{'row': 2})
         self.entry_m = Entry(self)
+        self.entry_m.insert(END, 3)
         self.entry_m.grid(column=1, **{'row': 2})
-
-        # self.entry_A.insert(END, '[[1, 2.5, 3], [2.5, 8.25, 15.5], [3, 15.5, 43]]')
-        # self.entry_b.insert(END, '[6.5, 26.25, 61.5]')
 
         (Button(self, text='Run', command=self.cmd_btn)
          .grid(column=4, **grid_cfg))
@@ -234,11 +241,18 @@ if __name__ == '__main__':
         m = int(sys.argv[2])
         A = create_matrix(n, m)
         print(A)
-        # A = [[-1.086, 0.997],
-        #      [0.283, -1.506],
-        #      [-0.579, 1.651]]
 
-        # A = [[-1.086, 0.283, -0.579], [0.997, -1.506, 1.651]]
+        # n > m
+        A = [[-1.086, 0.997],
+             [0.283, -1.506],
+             [-0.579, 1.651]]
+
+        # m > n
+        A = [[-1.086, 0.283, -0.579], [0.997, -1.506, 1.651]]
+
+        A = [[1, 1, -1 ],
+        [2, 3, -1],
+        [1, 4, 5]]
 
         print("inversa")
         print(numpy.linalg.pinv(A))
