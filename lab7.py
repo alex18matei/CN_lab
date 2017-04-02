@@ -4,6 +4,8 @@ import random
 import sys
 
 from math import *      # pentru functii gen sin(x) in expresia functiei
+from tkinter import *
+from tkinter.scrolledtext import *
 
 import numpy as np
 
@@ -11,6 +13,57 @@ DATA_DIR = 'data'
 X0_DEFAULT = 1.0
 XN_DEFAULT = 5.0
 FINI_DEFAULT = 'x**4 - 12 * x**3 + 30 * x**2 + 12'
+
+
+class GUIApp(Frame):
+    def __init__(self, master=None):
+        super().__init__(master)
+
+        self.fname = StringVar()
+        self.x = DoubleVar()
+        self.interp_f = None
+
+        self.pack()
+        self.create_widgets()
+
+    def create_first_row(self):
+        grid_cfg = {'padx': 5, 'pady': 5, 'row': 1}
+
+        (Entry(self, textvariable=self.fname, width=35)
+         .grid(column=1, **grid_cfg))
+
+        (Button(self, text='Newton Interpolation',
+                command=lambda: self.make_interp_f(0))
+         .grid(column=2, **grid_cfg))
+
+        (Button(self, text='Trigonometric Interpolation',
+                command=lambda: self.make_interp_f(1))
+         .grid(column=3, **grid_cfg))
+
+    def create_second_row(self):
+        grid_cfg = {'padx': 5, 'pady': 5, 'row': 2}
+
+        (Entry(self, textvariable=self.x, width=35)
+         .grid(column=1, **grid_cfg))
+
+        (Button(self, text='Solve', command=self.solve)
+         .grid(column=2, **grid_cfg))
+
+    def make_interp_f(self, which):
+        self.interp_f = newton_interp if which == 0 else trigon_interp
+
+    def solve(self):
+        solve_one(self.fname.get(),
+                  self.interp_f,
+                  self.x.get(),
+                  self.out_buffer)
+
+    def create_widgets(self):
+        self.create_first_row()
+        self.create_second_row()
+
+        self.out_buffer = ScrolledText(self, bg='white', height=10)
+        self.out_buffer.grid({'row': 3, 'columnspan': 6})
 
 
 def read_file(fname):
@@ -112,9 +165,7 @@ def trigon_interp(values):
     return f
 
 
-def nogui_one(fname, interp_f, x):
-    print()
-
+def solve_one(fname, interp_f, x, buffer=None):
     x0, xn, fini = read_file(fname)
     values = generate_values(x0, xn, fini, int(xn))
 
@@ -122,21 +173,35 @@ def nogui_one(fname, interp_f, x):
     y = eval(fini)
 
     f_str = 'L^(n)' if interp_f == newton_interp else 'Tn'
-    print('{}({}) = {}'.format(f_str, x, ya))
-    print('|{}({}) - f({})| = {}'.format(f_str, x, x, abs(ya - y)))
+
+    if buffer is None:
+        print()
+        print('{}({}) = {}'.format(f_str, x, ya))
+        print('|{}({}) - f({})| = {}'.format(f_str, x, x, abs(ya - y)))
+    else:
+        buffer.insert(END, '\n{}({}) = {}\n'.format(f_str, x, ya))
+        buffer.insert(END, ('|{}({}) - f({})| = {}\n'
+                            .format(f_str, x, x, abs(ya - y))))
 
 
 def nogui():
-    nogui_one('faprox1.txt', newton_interp, 2)
-    nogui_one('faprox2.txt', trigon_interp, 63 * pi / 32)
+    solve_one('faprox1.txt', newton_interp, 2)
+    solve_one('faprox2.txt', trigon_interp, 63 * pi / 32)
 
 
 def gui():
     pass
 
 
+def gui():
+    root = Tk()
+    root.geometry('800x600')
+    app = GUIApp(master=root)
+    app.mainloop()
+
+
 if __name__ == '__main__':
-    if sys.argv[1] == 'nogui':
+    if sys.argv[-1] == 'nogui':
         nogui()
     else:
         gui()
