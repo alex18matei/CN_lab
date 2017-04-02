@@ -3,11 +3,15 @@ import os.path
 import random
 import sys
 
+import numpy as np
+import matplotlib.pyplot as plt
+
 from math import *      # pentru functii gen sin(x) in expresia functiei
 from tkinter import *
 from tkinter.scrolledtext import *
 
-import numpy as np
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
 
 DATA_DIR = 'data'
 X0_DEFAULT = 1.0
@@ -22,6 +26,7 @@ class GUIApp(Frame):
         self.fname = StringVar()
         self.x = DoubleVar()
         self.interp_f = None
+        self.fig = self.ax = self.canvas = None
 
         self.pack()
         self.create_widgets()
@@ -49,14 +54,52 @@ class GUIApp(Frame):
         (Button(self, text='Solve', command=self.solve)
          .grid(column=2, **grid_cfg))
 
+        (Button(self, text='Plot', command=self.plot)
+         .grid(column=3, **grid_cfg))
+
     def make_interp_f(self, which):
         self.interp_f = newton_interp if which == 0 else trigon_interp
 
     def solve(self):
-        solve_one(self.fname.get(),
-                  self.interp_f,
-                  self.x.get(),
-                  self.out_buffer)
+        self.x0, self.xn, self.fini = solve_one(self.fname.get(),
+                                                self.interp_f,
+                                                self.x.get(),
+                                                self.out_buffer)
+
+    def plot(self):
+        if not self.ax:
+            self.fig, self.ax = plt.subplots()
+        self.ax.clear()
+
+        # plot f(x)
+        xs = []
+        ys = []
+
+        x = self.x0
+        while x <= self.xn:
+            xs.append(x)
+            ys.append(eval(self.fini))
+            x += 0.1
+
+        # plot interp_f(x)
+        xsi = []
+        ysi = []
+        values = generate_values(self.x0, self.xn, self.fini, int(self.xn))
+
+        x = self.x0
+        while x <= self.xn:
+            xsi.append(x)
+            ysi.append(self.interp_f(values)(x))
+            x += 0.1
+
+        self.ax.clear()
+        self.ax.plot(xs, ys, label='f(x)')
+        self.ax.plot(xsi, ysi, label='aprox(x)')
+        self.ax.legend()
+
+        self.canvas = FigureCanvasTkAgg(self.fig, master=self)
+        self.canvas.show()
+        self.canvas.get_tk_widget().grid(column=1, row=4)
 
     def create_widgets(self):
         self.create_first_row()
@@ -182,6 +225,8 @@ def solve_one(fname, interp_f, x, buffer=None):
         buffer.insert(END, '\n{}({}) = {}\n'.format(f_str, x, ya))
         buffer.insert(END, ('|{}({}) - f({})| = {}\n'
                             .format(f_str, x, x, abs(ya - y))))
+
+    return x0, xn, fini
 
 
 def nogui():
