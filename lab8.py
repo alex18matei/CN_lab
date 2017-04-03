@@ -2,6 +2,13 @@ import math
 import random
 import cmath
 import os.path
+import sys
+
+from tkinter import *
+from tkinter.ttk import *
+from tkinter.filedialog import *
+from tkinter.scrolledtext import *
+
 
 KMAX = 10000
 EPSILON = 10 ** (-10)
@@ -66,7 +73,7 @@ class MinFunctionMethodBase:
 
         if abs(delta) < EPSILON:
             if derivata2(self.polynom, x1) > 0:
-                return round(x1)
+                return round(x1, 4)
         else:
             return 'divergenta'
 
@@ -75,7 +82,9 @@ class MinFunctionMethodBase:
         for i in range(100):
             x0 = random.randint(0, 100)
             x1 = random.randint(0, 100)
-            res.append(self.metoda_secantei(x0, x1))
+            minim = self.metoda_secantei(x0, x1)
+            if minim is not None:
+                res.append(minim)
 
         return list(set(res))
 
@@ -98,10 +107,10 @@ class MinFunctionMethod2(MinFunctionMethodBase):
 
     def derivata1(self, x):
         h = 10 ** -6
-        return (- horner(polynom, x + 2 * h) +
-                8 * horner(polynom, x + h) -
-                8 * horner(polynom, x - h) +
-                horner(polynom, x - 2 * h)
+        return (- horner(self.polynom, x + 2 * h) +
+                8 * horner(self.polynom, x + h) -
+                8 * horner(self.polynom, x - h) +
+                horner(self.polynom, x - 2 * h)
                 ) / (12 * h)
 
 
@@ -174,10 +183,9 @@ class PolynomSolutionsBase:
             return 'divergenta'
 
     def solve(self):
-        output = open(os.path.join(DATA_DIR, 'output_tema_8.txt'), "wt")
+        output_file = open(os.path.join(DATA_DIR, 'output_tema_8.txt'), "wt")
         interval = self.get_interval()
-        output.write('Interval solutii: ')
-        output.write('{}\n'.format(interval))
+        output_message = '\nInterval solutii: {}\n'.format(interval)
         res = set()
         for i in range(1000):
             sol = self.metoda_laguerre(interval)
@@ -185,10 +193,11 @@ class PolynomSolutionsBase:
                 res.add(sol)
 
         final_result = unique_elem(list(res))
-        output.write('Solutii: \n')
+        output_message += 'Solutii: \n'
         for result in final_result:
-            output.write('{}\n'.format(result))
-        return final_result
+            output_message += '{}\n'.format(result)
+        output_file.write(output_message)
+        return output_message
 
 
 class PolynomRealSolutions(PolynomSolutionsBase):
@@ -257,7 +266,7 @@ class PolynomComplexSolutions(PolynomSolutionsBase):
             return 'divergenta'
 
 
-if __name__ == '__main__':
+def nogui():
     polynoms = []
     # x^2 − 4x^ + 3
     polynoms.append([1, -4, 3])
@@ -295,3 +304,58 @@ if __name__ == '__main__':
 
     print(PolynomRealSolutions(polynom).solve())
     print(PolynomComplexSolutions(polynom).solve())
+
+
+def gui():
+    root = Tk()
+    root.geometry('800x600')
+    app = GUIApp(master=root)
+    app.mainloop()
+
+
+class GUIApp(Frame):
+    def __init__(self, master=None):
+        super().__init__(master)
+        self.num = None
+        self.pack()
+        self.create_widgets()
+
+    def create_widgets(self):
+        grid_cfg = {'padx': 2, 'pady': 2, 'row': 1}
+
+        self.lb = Combobox(self, values=[
+            'PolynomRealSolutions',
+            'PolynomComplexSolutions',
+            'MinFunctionMethod1',
+            'MinFunctionMethod2'])
+        self.lb.grid(column=3, **grid_cfg)
+        self.lb.insert(0, 'PolynomComplexSolutions')
+
+        self.n_label = Label(self, text="Polynom Coeficients:").grid(column=0, **grid_cfg)
+        self.entry_n = Entry(self)
+        self.entry_n.grid(column=1, **grid_cfg)
+        self.entry_n.insert(END, '[1, 1, -25, 41, 66]')
+
+        (Button(self, text='Run', command=self.cmd_btn)
+         .grid(column=4, **grid_cfg))
+
+        self.out_buffer = ScrolledText(self, bg='white', height=20)
+        self.out_buffer.grid({'row': 8, 'columnspan': 6})
+
+    def cmd_btn(self):
+        self.out_buffer.delete('1.0', END)
+        input_polynom = self.entry_n.get()
+        if input_polynom[0] == '[':
+            input_polynom = eval(input_polynom)
+        else:
+            input_polynom = [int(item) for item in input_polynom.split(' ')]
+        function = self.lb.get() + '(input_polynom).solve()'
+        self.out_buffer.insert(END, eval(function))
+        self.out_buffer.insert(END, '\n')
+
+
+if __name__ == '__main__':
+    if sys.argv[-1] == 'nogui':
+        nogui()
+    else:
+        gui()
