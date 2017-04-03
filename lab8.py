@@ -235,8 +235,6 @@ class PolynomComplexSolutions(PolynomSolutionsBase):
         while k < KMAX:
             h_res = self.h(x)
 
-            if h_res.real < 0:
-                return
             radical = cmath.sqrt(h_res)
 
             numitor_delta = self.derivata1(x) \
@@ -294,7 +292,7 @@ if __name__ == '__main__':
     # x^4 + x^3 - 25x^2 + 41x + 66
     # polynom = [(1, 4), (1, 3), (-25, 2), (41, 1), (66, 1)]
 
-    # x^4 + x^3 - 25x^2 + 41x + 66
+    # x^4 - 4x^2 + 16
     # polynom = [(1, 4), (0, 3), (-4, 2), (0, 1), (16, 1)]
 
     print(PolynomRealSolutions(polynom).solve())
