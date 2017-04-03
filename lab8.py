@@ -1,10 +1,12 @@
 import math
 import random
 import cmath
+import os.path
 
 KMAX = 10000
 EPSILON = 10 ** (-10)
 DELTA_UPPER = 10 ** 8
+DATA_DIR = 'data'
 
 
 def derivata2(polynom, x):
@@ -19,13 +21,9 @@ def derivata2(polynom, x):
 
 def horner(polynom, x):
     acc = 0
-    for coef, _ in polynom:
+    for coef in polynom:
         acc = acc * x + coef
     return acc
-
-
-def calculate_polynom2(polynom, x):
-    return (eval(polynom))
 
 
 def unique_elem(my_list):
@@ -129,16 +127,16 @@ class PolynomSolutionsBase:
                 ) / (12 * h ** 2)
 
     def get_interval(self):
-        a0 = abs(self.polynom[0][0])
+        a0 = abs(self.polynom[0])
         max = 0
-        for (i, _) in self.polynom:
-            if max < abs(i):
-                max = abs(i)
+        for coef in self.polynom:
+            if max < abs(coef):
+                max = abs(coef)
         R = (a0 + max) / a0
         return [-R, R]
 
     def h(self, x):
-        n = self.polynom[0][1]
+        n = len(self.polynom) - 1
         return (n - 1) ** 2 * self.derivata1(x) ** 2 - \
                n * (n - 1) * self.eval(x) * \
                self.derivata2(x)
@@ -161,7 +159,7 @@ class PolynomSolutionsBase:
             if abs(numitor_delta) <= EPSILON:
                 return
 
-            delta = self.polynom[0][1] * self.eval(x) / \
+            delta = (len(self.polynom) - 1) * self.eval(x) / \
                     numitor_delta
 
             x -= delta
@@ -176,7 +174,7 @@ class PolynomSolutionsBase:
             return 'divergenta'
 
     def solve(self):
-        output = open("output.txt", "wt")
+        output = open(os.path.join(DATA_DIR, 'output_tema_8.txt'), "wt")
         interval = self.get_interval()
         output.write('Interval solutii: ')
         output.write('{}\n'.format(interval))
@@ -213,10 +211,10 @@ class PolynomComplexSolutions(PolynomSolutionsBase):
         d = x.imag
         p = -2 * c
         q = c * c + d * d
-        b0 = self.polynom[0][0]
-        b1 = self.polynom[1][0] - p * b0
+        b0 = self.polynom[0]
+        b1 = self.polynom[1] - p * b0
         for item in range(2, len(self.polynom)):
-            aux = self.polynom[item][0] - p * b1 - q * b0
+            aux = self.polynom[item] - p * b1 - q * b0
             b0 = b1
             b1 = aux
 
@@ -246,7 +244,7 @@ class PolynomComplexSolutions(PolynomSolutionsBase):
             if abs(numitor_delta.real) <= EPSILON:
                 return
 
-            delta = self.polynom[0][1] * self.eval(x) / \
+            delta = (len(self.polynom) - 1) * self.eval(x) / \
                     numitor_delta
 
             x -= delta
@@ -264,19 +262,19 @@ class PolynomComplexSolutions(PolynomSolutionsBase):
 if __name__ == '__main__':
     polynoms = []
     # x^2 − 4x^ + 3
-    polynoms.append([(1, 2), (-4, 1), (3, 0)])
+    polynoms.append([1, -4, 3])
 
     # x^3 − 6x^2 + 11x − 6
-    polynoms.append([(1, 3), (-6, 2), (11, 1), (-6, 0)])
+    polynoms.append([1, -6, 11, -6])
 
     # 42x^4 - 55x^3 - 42x^2 + 49x - 6
-    polynoms.append([(42, 4), (-55, 3), (-42, 2), (49, 1), (-6, 0)])
+    polynoms.append([42, -55, -42, 49, -6])
 
     # 8x^4 - 38x^3 + 49x^2 - 22x + 3
-    polynoms.append([(8, 4), (-38, 3), (49, 2), (-22, 1), (3, 0)])
+    polynoms.append([8, -38, 49, -22, 3])
 
     # x^4 − 6x^3 + 13x^2 − 12^x + 4
-    polynoms.append([(1, 4), (-6, 3), (13, 2), (-12, 1), (4, 0)])
+    polynoms.append([1, -6, 13, -12, 4])
 
     # print(MinFunctionMethod1(polynom).solve())
     # print(MinFunctionMethod2(polynom).solve())
@@ -286,16 +284,16 @@ if __name__ == '__main__':
     #     print(PolynomComplexSolutions(polynom).solve())
 
     # 4x^4 - 12x^3 - 12x – 4
-    polynom = [(4, 4), (-12, 3), (0, 2), (-12, 1), (-4, 0)]
+    # polynom = [4, -12, 0, -12, -4]
 
     # x^2 - 6x + 11
-    # polynom = [(1,2), (-6, 1), (11, 0)]
+    # polynom = [1, -6, 11]
 
     # x^4 + x^3 - 25x^2 + 41x + 66
-    # polynom = [(1, 4), (1, 3), (-25, 2), (41, 1), (66, 1)]
+    polynom = [1, 1, -25, 41, 66]
 
-    # x^4 + x^3 - 25x^2 + 41x + 66
-    # polynom = [(1, 4), (0, 3), (-4, 2), (0, 1), (16, 1)]
+    # x^4 - 4x^2 + 16
+    # polynom = [1, 0, -4, 0, 16]
 
     print(PolynomRealSolutions(polynom).solve())
     print(PolynomComplexSolutions(polynom).solve())
